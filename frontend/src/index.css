@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #020617;
+  --color-surface: #0f172a;
+  --color-primary: #38bdf8;
+  --color-secondary: #818cf8;
+  --color-accent: #2dd4bf;
+  --color-danger: #f43f5e;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-background text-slate-100 min-h-screen font-sans antialiased;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, rgba(129, 140, 248, 0.15) 0, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(45, 212, 191, 0.1) 0, transparent 50%);
+}
+
+.glass-card {
+  @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl shadow-2xl;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.glass-card-hover {
+  @apply transition-all duration-300 hover:bg-white/[0.05] hover:border-white/[0.12] hover:-translate-y-1;
+}
+
+.btn-primary {
+  @apply px-8 py-3 bg-gradient-to-br from-primary to-secondary rounded-2xl font-bold 
+  text-slate-900 shadow-lg shadow-primary/20 hover:shadow-primary/40 
+  hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.input-field {
+  @apply w-full px-6 py-4 bg-white/[0.05] border border-white/[0.1] rounded-2xl focus:outline-none 
+  focus:ring-2 focus:ring-primary/40 focus:bg-white/[0.08] transition-all duration-200 
+  placeholder:text-slate-500 text-lg;
+}
+
+.table-header {
+  @apply bg-white/[0.02] text-slate-400 text-xs font-black uppercase tracking-[0.2em] px-6 py-5;
+}
+
+.table-row {
+  @apply border-b border-white/[0.05] last:border-0 hover:bg-white/[0.02] transition-colors duration-150;
+}
