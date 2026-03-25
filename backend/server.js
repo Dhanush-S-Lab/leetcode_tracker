@@ -138,14 +138,17 @@ app.get('/check/:username', async (req, res) => {
       return res.status(404).json({ error: "User not found or has no recent submissions." });
     }
 
-    const solvedSlugs = new Set(submissions.map(s => s.titleSlug));
+    const solvedSlugs = new Set(submissions.map(s => s.titleSlug.trim().toLowerCase()));
     const problems = await getProblems();
 
-    const results = problems.map(p => ({
-      title: p.title,
-      difficulty: p.difficulty,
-      status: solvedSlugs.has(p.slug) ? "Solved" : "Not Solved"
-    }));
+    const results = problems.map(p => {
+      const dbSlug = (p.slug || '').toString().trim().toLowerCase();
+      return {
+        title: p.title,
+        difficulty: p.difficulty,
+        status: solvedSlugs.has(dbSlug) ? "Solved" : "Not Solved"
+      };
+    });
 
     const solvedCount = results.filter(r => r.status === "Solved").length;
     const totalCount = problems.length;
