@@ -25,7 +25,11 @@ function App() {
       const response = await axios.get(`${API_BASE_URL}/check/${username}`);
       setData(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to fetch user data. Please try again.');
+      let errorText = err.response?.data?.error || err.message;
+      if (typeof errorText === 'object') {
+        errorText = errorText.message || 'An unknown error occurred';
+      }
+      setError(errorText || 'Failed to fetch user data. Please try again.');
       setData(null);
     } finally {
       setLoading(false);

@@ -59,7 +59,11 @@ const UploadProblems = ({ onBack }) => {
       setCurrentProblems(res.data.problems);
       setFile(null);
     } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.error || 'Upload failed.' });
+      let errorText = err.response?.data?.error || err.message;
+      if (typeof errorText === 'object') {
+        errorText = errorText.message || 'An unknown error occurred';
+      }
+      setMessage({ type: 'error', text: errorText || 'Upload failed.' });
     } finally {
       setLoading(false);
     }
