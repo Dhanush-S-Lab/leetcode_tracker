@@ -21,7 +21,7 @@ const LEETCODE_GRAPHQL_URL = 'https://leetcode.com/graphql';
 
 const GET_RECENT_SUBMISSIONS = `
 query getRecentSubmissions($username: String!) {
-  recentAcSubmissionList(username: $username) {
+  recentAcSubmissionList(username: $username, limit: 50) {
     title
     titleSlug
     timestamp
@@ -59,7 +59,11 @@ async function saveProblems(newProblems) {
   if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
     await kv.set('leetcode_tracked_problems', newProblems);
   } else {
-    fs.writeFileSync(PROBLEMS_FILE, JSON.stringify(newProblems, null, 2));
+    try {
+      fs.writeFileSync(PROBLEMS_FILE, JSON.stringify(newProblems, null, 2));
+    } catch (err) {
+      console.warn("Could not save to local filesystem (likely Vercel environment without KV database configured). This will not persist across restarts.");
+    }
   }
 }
 
@@ -80,11 +84,15 @@ app.post('/problems/upload', upload.single('file'), async (req, res) => {
     const data = xlsx.utils.sheet_to_json(sheet);
 
     // Validate and format the extracted data
-    const newProblems = data.map(row => ({
-      title: row.title || row.Title,
-      slug: row.slug || row.titleSlug || row.Slug || (row.title ? row.title.toLowerCase().replace(/ /g, '-') : ''),
-      difficulty: row.difficulty || row.Difficulty || 'Easy'
-    })).filter(p => p.title && p.slug);
+    const newProblems = data.map(row => {
+      const title = row.title || row.Title;
+      const rawSlug = row.slug || row.titleSlug || row.Slug || (title ? title.toLowerCase().replace(/ /g, '-') : '');
+      return {
+        title,
+        slug: rawSlug.toString().trim().toLowerCase(),
+        difficulty: row.difficulty || row.Difficulty || 'Easy'
+      };
+    }).filter(p => p.title && p.slug);
 
     if (newProblems.length === 0) {
       fs.unlinkSync(req.file.path);
