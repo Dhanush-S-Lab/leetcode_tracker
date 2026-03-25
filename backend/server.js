@@ -7,12 +7,18 @@ const xlsx = require('xlsx');
 const fs = require('fs');
 const path = require('path');
 const { kv } = require('@vercel/kv'); // Import Vercel KV
+const Redis = require('ioredis');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+
+let redisClient = null;
+if (process.env.REDIS_URL) {
+  redisClient = new Redis(process.env.REDIS_URL);
+}
 
 const PROBLEMS_FILE = path.join(__dirname, 'problems.json');
 const upload = multer({ dest: '/tmp/' }); // Use /tmp/ for serverless environments (Vercel)
@@ -43,6 +49,11 @@ async function getProblems() {
     return data || DEFAULT_PROBLEMS;
   }
   
+  if (redisClient) {
+    const data = await redisClient.get('leetcode_tracked_problems');
+    return data ? JSON.parse(data) : DEFAULT_PROBLEMS;
+  }
+  
   // Local file fallback
   if (fs.existsSync(PROBLEMS_FILE)) {
     try {
@@ -58,6 +69,8 @@ async function getProblems() {
 async function saveProblems(newProblems) {
   if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
     await kv.set('leetcode_tracked_problems', newProblems);
+  } else if (redisClient) {
+    await redisClient.set('leetcode_tracked_problems', JSON.stringify(newProblems));
   } else {
     try {
       fs.writeFileSync(PROBLEMS_FILE, JSON.stringify(newProblems, null, 2));
