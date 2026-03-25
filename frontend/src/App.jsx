@@ -7,7 +7,8 @@ import StatCard from './components/StatCard';
 import ProblemTable from './components/ProblemTable';
 import UploadProblems from './components/UploadProblems';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE_URL = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
 
 function App() {
   const [username, setUsername] = useState('');
