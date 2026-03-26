@@ -154,6 +154,10 @@ function App() {
             </motion.div>
           )}
         </AnimatePresence>
+        
+        <footer className="mt-24 pb-8 text-center text-sm font-medium text-slate-500 opacity-60 hover:opacity-100 transition-opacity duration-300">
+          Made with ❤️ for shoe
+        </footer>
       </div>
     </div>
   );
